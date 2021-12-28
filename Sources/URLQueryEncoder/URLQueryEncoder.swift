@@ -71,12 +71,6 @@ public final class URLQueryEncoder {
         let encoder = _URLQueryEncoder(encoder: self, codingPath: codingPath)
         try? value.encode(to: encoder)
     }
-    
-    public static func data(for queryItems: [URLQueryItem]) -> Data {
-        var components = URLComponents()
-        components.queryItems = queryItems
-        return components.percentEncodedQuery?.data(using: .utf8) ?? Data()
-    }
 }
 
 private extension URLQueryEncoder {
