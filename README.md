@@ -110,10 +110,13 @@ You can access the encoding results at any time, and they come in different form
 
 ```swift
 public final class URLQueryEncoder {
+    // Encoded query items.
     public var queryItems: [URLQueryItem]
+    // Encoded query items as name-value pairs.
     public var items: [(String, String?)]
-    
+    // The encoded query items as a URL query subcomponent.
     public var query: String?
+    // The encoded query items as a URL query subcomponent with percent-encoded values.
     public var percentEncodedQuery: String?
 }
 ```

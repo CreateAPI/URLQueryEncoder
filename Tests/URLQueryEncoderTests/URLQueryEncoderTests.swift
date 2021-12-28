@@ -119,7 +119,7 @@ final class QueryEncoderTests: XCTestCase {
         // WHEN
         let encoder = URLQueryEncoder()
         encoder.explode = true
-        encoder.delimeter = " "
+        encoder.delimiter = " "
         encoder.encode(["id": ids])
         
         // THEN
@@ -133,7 +133,7 @@ final class QueryEncoderTests: XCTestCase {
         // WHEN
         let encoder = URLQueryEncoder()
         encoder.explode = false
-        encoder.delimeter = " "
+        encoder.delimiter = " "
         encoder.encode(["id": ids])
         
         // THEN
@@ -141,13 +141,13 @@ final class QueryEncoderTests: XCTestCase {
         XCTAssertEqual(encoder.percentEncodedQuery, "id=3%204%205")
     }
     
-    func testStyleSpaceDelimitedExplodeFalsePassDelimeterDirectly() {
+    func testStyleSpaceDelimitedExplodeFalsePassDelimiterDirectly() {
         // GIVEN
         let ids = [3, 4, 5]
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": ids], explode: false, delimeter: " ")
+        encoder.encode(["id": ids], explode: false, delimiter: " ")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3 4 5")
@@ -166,7 +166,7 @@ final class QueryEncoderTests: XCTestCase {
         // WHEN
         let encoder = URLQueryEncoder()
         encoder.explode = true
-        encoder.delimeter = "|"
+        encoder.delimiter = "|"
         encoder.encode(["id": ids])
         
         // THEN
@@ -180,7 +180,7 @@ final class QueryEncoderTests: XCTestCase {
         // WHEN
         let encoder = URLQueryEncoder()
         encoder.explode = false
-        encoder.delimeter = "|"
+        encoder.delimiter = "|"
         encoder.encode(["id": ids])
         
         // THEN

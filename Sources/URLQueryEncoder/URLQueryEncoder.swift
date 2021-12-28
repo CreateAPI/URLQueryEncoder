@@ -6,11 +6,11 @@ import Foundation
 
 public final class URLQueryEncoder {
     public var explode = true
-    public var delimeter = ","
+    public var delimiter = ","
     public var isDeepObject = false
     
     private var _explode = true
-    private var _delimeter = ","
+    private var _delimiter = ","
     private var _isDeepObject = false
     
     /// By default, `.iso8601`.
@@ -60,10 +60,10 @@ public final class URLQueryEncoder {
     
     public init() {}
     
-    public func encode(_ value: Encodable, explode: Bool? = nil, delimeter: String? = nil, isDeepObject: Bool? = nil) {
+    public func encode(_ value: Encodable, explode: Bool? = nil, delimiter: String? = nil, isDeepObject: Bool? = nil) {
         // Temporary override the settings to the duration of the call
         _explode = explode ?? self.explode
-        _delimeter = delimeter ?? self.delimeter
+        _delimiter = delimiter ?? self.delimiter
         _isDeepObject = isDeepObject ?? self.isDeepObject
 
         let encoder = _URLQueryEncoder(encoder: self)
@@ -202,7 +202,7 @@ private extension URLQueryEncoder {
                 }
             } else { // Encoding an array or a primitive value
                 if var queryItem = queryItems.last, queryItem.name == key {
-                    queryItem.value = [queryItem.value, value].compactMap { $0 }.joined(separator: _delimeter)
+                    queryItem.value = [queryItem.value, value].compactMap { $0 }.joined(separator: _delimiter)
                     queryItems[queryItems.endIndex - 1] = queryItem
                 } else {
                     queryItems.append(URLQueryItem(name: key, value: value))
