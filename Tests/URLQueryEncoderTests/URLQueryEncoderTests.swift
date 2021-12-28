@@ -204,6 +204,38 @@ final class QueryEncoderTests: XCTestCase {
         XCTAssertEqual(encoder.query, "id[role]=admin&id[name]=kean")
         XCTAssertEqual(encoder.percentEncodedQuery, "id%5Brole%5D=admin&id%5Bname%5D=kean")
     }
+    
+    // MARK: Misc
+    
+    func testMixingDifferentStyles() {
+        // GIVEN
+        let user = User(role: "admin", name: "kean")
+        let ids = [3, 4, 5]
+        
+        // WHEN
+        let encoder = URLQueryEncoder()
+        encoder.encode(["ids": ids], explode: false)
+        encoder.encode(["ids2": ids], explode: true)
+        encoder.encode(["user": user], isDeepObject: true)
+        encoder.encode(["id": 2])
+        
+        // THEN
+        XCTAssertEqual(encoder.query, "ids=3,4,5&ids2=3&ids2=4&ids2=5&user[role]=admin&user[name]=kean&id=2")
+    }
+    
+    // MARK: Encoding Nils
+    
+    func testEncodingNil() {
+        // GIVEN
+        let id: Int? = nil
+        
+        // THEN
+        let encoder = URLQueryEncoder()
+        encoder.encode(["id": id])
+
+        // THEN
+        XCTAssertTrue(encoder.queryItems.isEmpty)
+    }
 }
 
 private struct User: Encodable {

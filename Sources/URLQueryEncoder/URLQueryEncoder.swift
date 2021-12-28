@@ -73,14 +73,6 @@ public class URLQueryEncoder {
         try? value.encode(to: self)
     }
     
-    #warning("do we need this method?")
-    public func encode<V: Encodable>(_ value: V, forKey key: String, explode: Bool? = nil, delimeter: String? = nil, isDeepObject: Bool? = nil) {
-        _explode = explode ?? self.explode
-        _delimeter = delimeter ?? self.delimeter
-        _isDeepObject = isDeepObject ?? self.isDeepObject
-        try? [key: value].encode(to: self)
-    }
-    
     public static func data(for queryItems: [URLQueryItem]) -> Data {
         var components = URLComponents()
         components.queryItems = queryItems
@@ -89,9 +81,8 @@ public class URLQueryEncoder {
 }
 
 private extension URLQueryEncoder {
-    #warning("test encodeNil extensively!")
     func encodeNil(forKey codingPath: [CodingKey]) throws {
-        queryItems.append(URLQueryItem(name: codingPath.last?.stringValue ?? "", value: nil))
+        // Do nothing
     }
         
     func encode(_ value: String, forKey codingPath: [CodingKey]) throws {
