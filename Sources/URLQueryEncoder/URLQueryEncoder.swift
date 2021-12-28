@@ -35,8 +35,7 @@ public final class URLQueryEncoder {
         /// If the closure fails to encode a value into the given encoder, the encoder will encode an empty automatic container in its place.
         case custom((Date) -> String)
     }
-    
-    fileprivate(set) var codingPath: [CodingKey] = []
+
     public private(set) var queryItems: [URLQueryItem] = []
 
     public var items: [(String, String?)] {
@@ -67,7 +66,7 @@ public final class URLQueryEncoder {
         _delimeter = delimeter ?? self.delimeter
         _isDeepObject = isDeepObject ?? self.isDeepObject
 
-        let encoder = _URLQueryEncoder(encoder: self, codingPath: codingPath)
+        let encoder = _URLQueryEncoder(encoder: self)
         do {
             try value.encode(to: encoder)
         } catch {
@@ -215,19 +214,19 @@ private extension URLQueryEncoder {
 
 private struct _URLQueryEncoder: Encoder {
     let encoder: URLQueryEncoder
-    var codingPath: [CodingKey]
+    var codingPath: [CodingKey] = []
     var userInfo: [CodingUserInfoKey : Any] { return [:] }
     
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        KeyedEncodingContainer(KeyedContainer<Key>(encoder: encoder, codingPath: encoder.codingPath))
+        KeyedEncodingContainer(KeyedContainer<Key>(encoder: encoder, codingPath: codingPath))
     }
     
     func unkeyedContainer() -> UnkeyedEncodingContainer {
-        UnkeyedContanier(encoder: encoder, codingPath: encoder.codingPath)
+        UnkeyedContanier(encoder: encoder, codingPath: codingPath)
     }
     
     func singleValueContainer() -> SingleValueEncodingContainer {
-        SingleValueContanier(encoder: encoder, codingPath: encoder.codingPath)
+        SingleValueContanier(encoder: encoder, codingPath: codingPath)
     }
 }
 
@@ -236,17 +235,11 @@ private struct KeyedContainer<Key: CodingKey>: KeyedEncodingContainerProtocol {
     let codingPath: [CodingKey]
     
     func encode<T>(_ value: T, forKey key: Key) throws where T : Encodable {
-        let codingPath = self.codingPath + [key]
-        encoder.codingPath = codingPath
-        defer { encoder.codingPath.removeLast() }
-        try encoder.encodeEncodable(value, forKey: codingPath)
+        try encoder.encodeEncodable(value, forKey: codingPath + [key])
     }
     
     func encodeNil(forKey key: Key) throws {
-        let codingPath = self.codingPath + [key]
-        encoder.codingPath = codingPath
-        defer { encoder.codingPath.removeLast() }
-        try encoder.encodeNil(forKey: codingPath)
+        try encoder.encodeNil(forKey: codingPath + [key])
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
@@ -321,7 +314,6 @@ private struct SingleValueContanier: SingleValueEncodingContainer {
     }
 
     mutating func encode<T>(_ value: T) throws where T : Encodable {
-        encoder.codingPath = self.codingPath
         try encoder.encodeEncodable(value, forKey: codingPath)
     }
 }
