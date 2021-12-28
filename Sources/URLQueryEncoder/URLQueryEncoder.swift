@@ -4,15 +4,13 @@
 
 import Foundation
 
-#warning("should this be a struct?")
-public class URLQueryEncoder {
+public final class URLQueryEncoder {
     public var explode = true
-    private var _explode = true
-    
     public var delimeter = ","
-    private var _delimeter = ","
-    
     public var isDeepObject = false
+    
+    private var _explode = true
+    private var _delimeter = ","
     private var _isDeepObject = false
     
     /// By default, `.iso8601`.
@@ -70,7 +68,8 @@ public class URLQueryEncoder {
         _explode = explode ?? self.explode
         _delimeter = delimeter ?? self.delimeter
         _isDeepObject = isDeepObject ?? self.isDeepObject
-        try? value.encode(to: self)
+        let encoder = _URLQueryEncoder(encoder: self, codingPath: codingPath)
+        try? value.encode(to: encoder)
     }
     
     public static func data(for queryItems: [URLQueryItem]) -> Data {
@@ -176,7 +175,7 @@ private extension URLQueryEncoder {
         case let value as Float: try encode(value, forKey: codingPath)
         case let value as Date: try encode(value, forKey: codingPath)
         case let value as URL: try encode(value, forKey: codingPath)
-        case let value: try value.encode(to: self)
+        case let value: try value.encode(to: _URLQueryEncoder(encoder: self, codingPath: codingPath))
         }
     }
     
@@ -217,20 +216,21 @@ private extension URLQueryEncoder {
     }
 }
 
-#warning("TODO: remove from extension")
-extension URLQueryEncoder: Encoder {
-    public var userInfo: [CodingUserInfoKey : Any] { return [:] }
+private struct _URLQueryEncoder: Encoder {
+    let encoder: URLQueryEncoder
+    var codingPath: [CodingKey]
+    var userInfo: [CodingUserInfoKey : Any] { return [:] }
     
-    public func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
-        return KeyedEncodingContainer(KeyedContainer<Key>(encoder: self, codingPath: codingPath))
+    func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
+        KeyedEncodingContainer(KeyedContainer<Key>(encoder: encoder, codingPath: encoder.codingPath))
     }
     
-    public func unkeyedContainer() -> UnkeyedEncodingContainer {
-        return UnkeyedContanier(encoder: self, codingPath: codingPath)
+    func unkeyedContainer() -> UnkeyedEncodingContainer {
+        UnkeyedContanier(encoder: encoder, codingPath: encoder.codingPath)
     }
     
-    public func singleValueContainer() -> SingleValueEncodingContainer {
-        return SingleValueContanier(encoder: self, codingPath: codingPath)
+    func singleValueContainer() -> SingleValueEncodingContainer {
+        SingleValueContanier(encoder: encoder, codingPath: encoder.codingPath)
     }
 }
 
@@ -253,19 +253,22 @@ private struct KeyedContainer<Key: CodingKey>: KeyedEncodingContainerProtocol {
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        return KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath + [key]))
+        KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath + [key]))
     }
     
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
         return UnkeyedContanier(encoder: encoder, codingPath: codingPath + [key])
     }
     
     func superEncoder() -> Encoder {
-        encoder
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
+        return _URLQueryEncoder(encoder: encoder, codingPath: codingPath)
     }
     
     func superEncoder(forKey key: Key) -> Encoder {
-        encoder
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
+        return _URLQueryEncoder(encoder: encoder, codingPath: codingPath + [key])
     }
 }
     
@@ -281,15 +284,18 @@ private final class UnkeyedContanier: UnkeyedEncodingContainer {
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath))
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
+        return KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath))
     }
     
     func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
-        self
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
+        return self
     }
     
     func superEncoder() -> Encoder {
-        encoder
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
+        return _URLQueryEncoder(encoder: encoder, codingPath: codingPath)
     }
     
     func encodeNil() throws {
