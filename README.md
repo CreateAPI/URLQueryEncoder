@@ -109,7 +109,7 @@ encoder.encode(["id": 2])
 You can access the encoding results at any time, and they come in different forms:
 
 ```swift
-public final class Encoder {
+public final class URLQueryEncoder {
     public var queryItems: [URLQueryItem]
     public var items: [(String, String?)]
     
