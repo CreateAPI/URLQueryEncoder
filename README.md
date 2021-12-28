@@ -77,7 +77,7 @@ encoder.encode(user, forKey: "id", isDeepObject: true)
 // Query: "id[role]=admin&id[name]=kean")"
 ```
 
-> If you are encoding a request body using URL-form encoding, you can use a convenience `URLQueryEncoder(encoding: body` initializer. 
+> If you are encoding a request body using URL-form encoding, you can use a convenience `URLQueryEncoder.encode(body)` method. 
 
 ## Encoding Options
 

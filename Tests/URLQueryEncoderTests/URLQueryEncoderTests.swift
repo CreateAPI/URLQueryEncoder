@@ -232,7 +232,7 @@ final class QueryEncoderTests: XCTestCase {
         let user = User(role: "admin", name: "kean")
         
         // THEN
-        let query = URLQueryEncoder(encoding: user).percentEncodedQuery
+        let query = URLQueryEncoder.encode(user).percentEncodedQuery
         
         XCTAssertEqual(query, "role=admin&name=kean")
     }

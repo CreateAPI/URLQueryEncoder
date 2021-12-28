@@ -5,13 +5,13 @@
 import Foundation
 
 public final class URLQueryEncoder {
-    public var explode = true
-    public var delimiter = ","
-    public var isDeepObject = false
+    public var explode: Bool
+    public var delimiter: String
+    public var isDeepObject: Bool
     
-    private var _explode = true
-    private var _delimiter = ","
-    private var _isDeepObject = false
+    private var _explode: Bool
+    private var _delimiter: String
+    private var _isDeepObject: Bool
     
     /// By default, `.iso8601`.
     public var dateEncodingStrategy: DateEncodingStrategy = .iso8601
@@ -58,7 +58,15 @@ public final class URLQueryEncoder {
         return components
     }
     
-    public init() {}
+    
+    public init(explode: Bool = true, delimiter: String = ",", isDeepObject: Bool = false) {
+        self.explode = explode
+        self._explode = explode
+        self.delimiter = delimiter
+        self._delimiter = delimiter
+        self.isDeepObject = isDeepObject
+        self._isDeepObject = isDeepObject
+    }
 
     /// Encodes value for the given key.
     @discardableResult
@@ -82,10 +90,6 @@ public final class URLQueryEncoder {
             assertionFailure("URL encoding failed with an error: \(error)")
         }
         return self
-    }
-    
-    public init<T: Encodable>(encoding body: T) {
-        encode(body, forKey: "value")
     }
     
     public static func encode<T: Encodable>(_ body: T) -> URLQueryEncoder {
