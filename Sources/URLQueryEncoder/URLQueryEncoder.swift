@@ -36,9 +36,8 @@ public final class URLQueryEncoder {
         case custom((Date) -> String)
     }
     
-    #warning("this should be private")
-    public fileprivate(set) var codingPath: [CodingKey] = []
-    public fileprivate(set) var queryItems: [URLQueryItem] = []
+    fileprivate(set) var codingPath: [CodingKey] = []
+    public private(set) var queryItems: [URLQueryItem] = []
 
     public var items: [(String, String?)] {
         queryItems.map { ($0.name, $0.value) }
@@ -62,14 +61,19 @@ public final class URLQueryEncoder {
     
     public init() {}
     
-    #warning("make throwing?")
-    #warning("simplify how configuration is passed")
     public func encode(_ value: Encodable, explode: Bool? = nil, delimeter: String? = nil, isDeepObject: Bool? = nil) {
+        // Temporary override the settings to the duration of the call
         _explode = explode ?? self.explode
         _delimeter = delimeter ?? self.delimeter
         _isDeepObject = isDeepObject ?? self.isDeepObject
+
         let encoder = _URLQueryEncoder(encoder: self, codingPath: codingPath)
-        try? value.encode(to: encoder)
+        do {
+            try value.encode(to: encoder)
+        } catch {
+            // Assume that conversion to String never fails
+            assertionFailure("URL encoding failed with an error: \(error)")
+        }
     }
 }
 
@@ -151,7 +155,6 @@ private extension URLQueryEncoder {
     }
 
     func encodeEncodable<T: Encodable>(_ value: T, forKey codingPath: [CodingKey]) throws {
-        self.codingPath = codingPath
         switch value {
         case let value as String: try encode(value, forKey: codingPath)
         case let value as Bool: try encode(value, forKey: codingPath)
@@ -247,7 +250,8 @@ private struct KeyedContainer<Key: CodingKey>: KeyedEncodingContainerProtocol {
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
-        KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath + [key]))
+        assertionFailure("URLQueryEncoder doesn't support nested objects")
+        return KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath + [key]))
     }
     
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
@@ -277,6 +281,16 @@ private final class UnkeyedContanier: UnkeyedEncodingContainer {
         self.codingPath = codingPath
     }
     
+    func encodeNil() throws {
+        try encoder.encodeNil(forKey: codingPath)
+        count += 1
+    }
+    
+    func encode<T>(_ value: T) throws where T: Encodable {
+        try encoder.encodeEncodable(value, forKey: codingPath)
+        count += 1
+    }
+    
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         assertionFailure("URLQueryEncoder doesn't support nested objects")
         return KeyedEncodingContainer(KeyedContainer<NestedKey>(encoder: encoder, codingPath: codingPath))
@@ -290,16 +304,6 @@ private final class UnkeyedContanier: UnkeyedEncodingContainer {
     func superEncoder() -> Encoder {
         assertionFailure("URLQueryEncoder doesn't support nested objects")
         return _URLQueryEncoder(encoder: encoder, codingPath: codingPath)
-    }
-    
-    func encodeNil() throws {
-        try encoder.encodeNil(forKey: codingPath)
-        count += 1
-    }
-    
-    func encode<T>(_ value: T) throws where T: Encodable {
-        try encoder.encodeEncodable(value, forKey: codingPath)
-        count += 1
     }
 }
 
