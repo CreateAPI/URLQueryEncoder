@@ -11,7 +11,7 @@ let encoder = URLQueryEncoder()
 encoder.encode(["id": id])
 
 print(encoder.queryItems)
-// ("id", "5")
+// [URLQueryItem(name: "id", value: "5")]
 ```
 
 ### Encoding Arrays
