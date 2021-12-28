@@ -1,6 +1,6 @@
 # URLQueryEncoder
 
-A customizable Swift `Encoder` that encodes instances of data types as URL query items. Supports all [OpenAPI] query parameter [serialization options](https://swagger.io/docs/specification/serialization/).
+A customizable Swift `Encoder` that encodes instances of data types as URL query items. Supports all OpenAPI [serialization options](https://swagger.io/docs/specification/serialization/).
 
 ## Examples
 
@@ -77,11 +77,11 @@ encoder.encode(user, forKey: "id", isDeepObject: true)
 // Query: "id[role]=admin&id[name]=kean")"
 ```
 
-> If you are encoding a request body using URL-form encoding, you can use a convenience `URLQueryEncoder.encode(body)` method. 
+> If you are encoding a request body using URL-form encoding, you can use a convenience `URLQueryEncoder.encode(_:)` method. 
 
 ## Encoding Options
 
-There are two ways to change the encoding options: settings them directly on `URLQueryEncoder` instance, or passing options in each individual `encode` call. The reason it's designed this way is that in OpenAPI, each parameter can have different serialization options.
+There are two ways to change the encoding options. You can set them directly on `URLQueryEncoder` instance.
 
 ```swift
 let encoder = URLQueryEncoder()
@@ -91,21 +91,22 @@ encoder.delimiter = "|"
 encoder.dateEncodingStrategy = .millisecondsSince1970
 ```
 
-You can use `URLQueryEncoder` to encode more that one parameter are a time:
+Or pass options in each individual `encode` call. 
 
 ```swift
 let user = User(role: "admin", name: "kean")
 let ids = [3, 4, 5]
 
-let query = URLQueryEncoder()
-    .encode(ids, forKey: "ids", explode: false)
-    .encode(ids, forKey: "ids2", explode: true)
-    .encode(user, forKey: "user", isDeepObject: true)
-    .encode(2, forKey: "id")
-    .query
+let encoder = URLQueryEncoder()
+encoder.encode(ids, forKey: "ids", explode: false)
+encoder.encode(ids, forKey: "ids2", explode: true)
+encoder.encode(user, forKey: "user", isDeepObject: true)
+encoder.encode(2, forKey: "id")
 
 // Query: "ids=3,4,5&ids2=3&ids2=4&ids2=5&user[role]=admin&user[name]=kean&id=2"
 ```
+
+The reason it's designed this way is that in OpenAPI each parameter can come with different serialization options.
 
 ## Accessing Results
 
