@@ -59,8 +59,16 @@ public final class URLQueryEncoder {
     }
     
     public init() {}
-    
-    public func encode(_ value: Encodable, explode: Bool? = nil, delimiter: String? = nil, isDeepObject: Bool? = nil) {
+
+    /// Encodes value for the given key.
+    @discardableResult
+    public func encode<T: Encodable>(_ value: T, forKey key: String) -> Self {
+        encode(value, forKey: key, explode: nil, delimiter: nil, isDeepObject: nil)
+    }
+
+    /// Encodes value for the given key.
+    @discardableResult
+    public func encode<T: Encodable>(_ value: T, forKey key: String, explode: Bool? = nil, delimiter: String? = nil, isDeepObject: Bool? = nil) -> Self {
         // Temporary override the settings to the duration of the call
         _explode = explode ?? self.explode
         _delimiter = delimiter ?? self.delimiter
@@ -68,11 +76,22 @@ public final class URLQueryEncoder {
 
         let encoder = _URLQueryEncoder(encoder: self)
         do {
-            try value.encode(to: encoder)
+            try [key: value].encode(to: encoder)
         } catch {
-            // Assume that conversion to String never fails
+            // Assume that encoding to String never fails
             assertionFailure("URL encoding failed with an error: \(error)")
         }
+        return self
+    }
+    
+    public init<T: Encodable>(encoding body: T) {
+        encode(body, forKey: "value")
+    }
+    
+    public static func encode<T: Encodable>(_ body: T) -> URLQueryEncoder {
+        let encoder = URLQueryEncoder()
+        encoder.encode(body, forKey: "value")
+        return encoder
     }
 }
 

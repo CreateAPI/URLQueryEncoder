@@ -14,7 +14,7 @@ final class QueryEncoderTests: XCTestCase {
         
         // THEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": id])
+        encoder.encode(id, forKey: "id")
 
         // THEN
         XCTAssertEqual(encoder.query, "id=5")
@@ -26,7 +26,7 @@ final class QueryEncoderTests: XCTestCase {
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": ids])
+        encoder.encode(ids, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3&id=4&id=5")
@@ -38,24 +38,12 @@ final class QueryEncoderTests: XCTestCase {
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": user])
+        encoder.encode(user, forKey: "id")
 
         // THEN
         XCTAssertEqual(encoder.query, "role=admin&name=kean")
     }
-    
-    func testStyleFormExplodeTrueObjectPassedDirectly() throws {
-        // GIVEN
-        let user = User(role: "admin", name: "kean")
         
-        // WHEN
-        let encoder = URLQueryEncoder()
-        encoder.encode(user)
-
-        // THEN
-        XCTAssertEqual(encoder.query, "role=admin&name=kean")
-    }
-    
     // MARK: Style: Form, Explode: False
     
     func testStyleFormExplodeFalsePrimitive() throws {
@@ -64,7 +52,7 @@ final class QueryEncoderTests: XCTestCase {
         
         // THEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": id])
+        encoder.encode(id, forKey: "id")
 
         // THEN
         XCTAssertEqual(encoder.query, "id=5")
@@ -77,7 +65,7 @@ final class QueryEncoderTests: XCTestCase {
         // WHEN
         let encoder = URLQueryEncoder()
         encoder.explode = false
-        encoder.encode(["id": ids])
+        encoder.encode(ids, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3,4,5")
@@ -89,7 +77,7 @@ final class QueryEncoderTests: XCTestCase {
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": ids], explode: false)
+        encoder.encode(ids, forKey: "id", explode: false)
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3,4,5")
@@ -101,7 +89,7 @@ final class QueryEncoderTests: XCTestCase {
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": user], explode: false)
+        encoder.encode(user, forKey: "id", explode: false)
         
         // THEN
         XCTAssertEqual(encoder.query, "id=role,admin,name,kean")
@@ -120,7 +108,7 @@ final class QueryEncoderTests: XCTestCase {
         let encoder = URLQueryEncoder()
         encoder.explode = true
         encoder.delimiter = " "
-        encoder.encode(["id": ids])
+        encoder.encode(ids, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3&id=4&id=5")
@@ -134,7 +122,7 @@ final class QueryEncoderTests: XCTestCase {
         let encoder = URLQueryEncoder()
         encoder.explode = false
         encoder.delimiter = " "
-        encoder.encode(["id": ids])
+        encoder.encode(ids, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3 4 5")
@@ -147,7 +135,7 @@ final class QueryEncoderTests: XCTestCase {
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": ids], explode: false, delimiter: " ")
+        encoder.encode(ids, forKey: "id", explode: false, delimiter: " ")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3 4 5")
@@ -167,7 +155,7 @@ final class QueryEncoderTests: XCTestCase {
         let encoder = URLQueryEncoder()
         encoder.explode = true
         encoder.delimiter = "|"
-        encoder.encode(["id": ids])
+        encoder.encode(ids, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3&id=4&id=5")
@@ -181,7 +169,7 @@ final class QueryEncoderTests: XCTestCase {
         let encoder = URLQueryEncoder()
         encoder.explode = false
         encoder.delimiter = "|"
-        encoder.encode(["id": ids])
+        encoder.encode(ids, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id=3|4|5")
@@ -198,7 +186,7 @@ final class QueryEncoderTests: XCTestCase {
         let encoder = URLQueryEncoder()
         encoder.explode = true
         encoder.isDeepObject = true
-        encoder.encode(["id": user])
+        encoder.encode(user, forKey: "id")
         
         // THEN
         XCTAssertEqual(encoder.query, "id[role]=admin&id[name]=kean")
@@ -214,10 +202,10 @@ final class QueryEncoderTests: XCTestCase {
         
         // WHEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["ids": ids], explode: false)
-        encoder.encode(["ids2": ids], explode: true)
-        encoder.encode(["user": user], isDeepObject: true)
-        encoder.encode(["id": 2])
+        encoder.encode(ids, forKey: "ids", explode: false)
+        encoder.encode(ids, forKey: "ids2")
+        encoder.encode(user, forKey: "user", isDeepObject: true)
+        encoder.encode(2, forKey: "id", explode: false)
         
         // THEN
         XCTAssertEqual(encoder.query, "ids=3,4,5&ids2=3&ids2=4&ids2=5&user[role]=admin&user[name]=kean&id=2")
@@ -231,10 +219,22 @@ final class QueryEncoderTests: XCTestCase {
         
         // THEN
         let encoder = URLQueryEncoder()
-        encoder.encode(["id": id])
+        encoder.encode(id, forKey: "id")
 
         // THEN
         XCTAssertTrue(encoder.queryItems.isEmpty)
+    }
+    
+    // MARK: Encoding Objects (Body)
+    
+    func testEncodingBody() {
+        // GIVEN
+        let user = User(role: "admin", name: "kean")
+        
+        // THEN
+        let query = URLQueryEncoder(encoding: user).percentEncodedQuery
+        
+        XCTAssertEqual(query, "role=admin&name=kean")
     }
 }
 

@@ -8,7 +8,7 @@ A customizable Swift `Encoder` that encodes instances of data types as URL query
 
 ```swift
 let encoder = URLQueryEncoder()
-encoder.encode(["id": id])
+encoder.encode(id, forKey: "id")
 
 print(encoder.queryItems)
 // [URLQueryItem(name: "id", value: "5")]
@@ -19,7 +19,7 @@ print(encoder.queryItems)
 ```swift
 let ids = [3, 4, 5]
 let encoder = URLQueryEncoder()
-encoder.encode(["id": ids])
+encoder.encode(ids, forKey: "id")
 
 // Query: "id=3&id=4&id=5"
 ```
@@ -29,7 +29,7 @@ With an `explode` option disabled:
 ```swift
 let ids = [3, 4, 5]
 let encoder = URLQueryEncoder()
-encoder.encode(["id": ids], explode: false)
+encoder.encode(ids, forKey: "id", explode: false)
 
 // Query: "id=3,4,5"
 ```
@@ -39,7 +39,7 @@ With an `explode` option disabled and a custom delimiter:
 ```swift
 let ids = [3, 4, 5]
 let encoder = URLQueryEncoder()
-encoder.encode(["id": ids], explode: false, delimiter: "|")
+encoder.encode(ids, forKey: "id", explode: false, delimeter: "|")
 
 // Query: "id=3|4|5"
 ```
@@ -50,7 +50,7 @@ encoder.encode(["id": ids], explode: false, delimiter: "|")
 let user = User(role: "admin", name: "kean")
 
 let encoder = URLQueryEncoder()
-encoder.encode(user)
+encoder.encode(user, forKey: "id")
 
 // Query: "role=admin&name=kean"
 ```
@@ -61,7 +61,7 @@ With an `explode` option disabled:
 let user = User(role: "admin", name: "kean")
 
 let encoder = URLQueryEncoder()
-encoder.encode(user, explode: false)
+encoder.encode(user, forKey: "id", explode: false)
 
 // Query: "id=role,admin,name,kean"
 ```
@@ -72,10 +72,12 @@ As a "deep" object:
 let user = User(role: "admin", name: "kean")
 
 let encoder = URLQueryEncoder()
-encoder.encode(user, isDeepObject: true)
+encoder.encode(user, forKey: "id", isDeepObject: true)
 
 // Query: "id[role]=admin&id[name]=kean")"
 ```
+
+> If you are encoding a request body using URL-form encoding, you can use a convenience `URLQueryEncoder(encoding: body` initializer. 
 
 ## Encoding Options
 
@@ -95,11 +97,12 @@ You can use `URLQueryEncoder` to encode more that one parameter are a time:
 let user = User(role: "admin", name: "kean")
 let ids = [3, 4, 5]
 
-let encoder = URLQueryEncoder()
-encoder.encode(["ids": ids], explode: false)
-encoder.encode(["ids2": ids], explode: true)
-encoder.encode(["user": user], isDeepObject: true)
-encoder.encode(["id": 2])
+let query = URLQueryEncoder()
+    .encode(ids, forKey: "ids", explode: false)
+    .encode(ids, forKey: "ids2", explode: true)
+    .encode(user, forKey: "user", isDeepObject: true)
+    .encode(2, forKey: "id")
+    .query
 
 // Query: "ids=3,4,5&ids2=3&ids2=4&ids2=5&user[role]=admin&user[name]=kean&id=2"
 ```
