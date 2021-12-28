@@ -14,6 +14,17 @@ print(encoder.queryItems)
 // [URLQueryItem(name: "id", value: "5")]
 ```
 
+By default, optional values are not encoded.
+
+```swift
+var id: Int?
+let encoder = URLQueryEncoder()
+encoder.encode(id, forKey: "id")
+
+print(encoder.queryItems)
+// []
+```
+
 ### Encoding Arrays
 
 ```swift
