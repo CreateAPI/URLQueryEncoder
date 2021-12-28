@@ -101,7 +101,7 @@ encoder.encode(["ids2": ids], explode: true)
 encoder.encode(["user": user], isDeepObject: true)
 encoder.encode(["id": 2])
 
-// Query: "ids=3,4,5&ids2=3&ids2=4&ids2=5&user[role]=admin&user[name]=kean&id=2")
+// Query: "ids=3,4,5&ids2=3&ids2=4&ids2=5&user[role]=admin&user[name]=kean&id=2"
 ```
 
 ## Accessing Results
