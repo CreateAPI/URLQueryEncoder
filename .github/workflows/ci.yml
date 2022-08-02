@@ -1,4 +1,4 @@
-name: "HTTPHeaders CI"
+name: CI
 
 on:
   push:
