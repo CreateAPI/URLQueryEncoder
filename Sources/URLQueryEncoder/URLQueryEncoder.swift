@@ -164,7 +164,7 @@ private extension URLQueryEncoder {
         let string: String
         switch dateEncodingStrategy {
         case .iso8601: string = iso8601Formatter.string(from: value)
-        case .secondsSince1970: string = String(value.timeIntervalSince1970)
+        case .secondsSince1970: string = String(Int(value.timeIntervalSince1970))
         case .millisecondsSince1970: string = String(Int(value.timeIntervalSince1970 * 1000))
         case .formatted(let formatter): string = formatter.string(from: value)
         case .custom(let closure): string = closure(value)
